@@ -44,6 +44,7 @@ interface ScanState {
 
 interface SystemStatus {
   is_authenticated: boolean;
+  logged_in_email?: string | null;
   historical_cutoff: string;
   historical_completed: boolean;
   last_incremental_sync: string;
@@ -100,13 +101,9 @@ export default function Dashboard() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Particular Date scan controls
-  const [selectedScanDate, setSelectedScanDate] = useState(() => {
-    return new Date().toISOString().split("T")[0];
-  });
+  const [selectedScanDate, setSelectedScanDate] = useState("");
   const [dateScanMode, setDateScanMode] = useState<"single" | "from_date" | "range">("single");
-  const [selectedEndDate, setSelectedEndDate] = useState(() => {
-    return new Date().toISOString().split("T")[0];
-  });
+  const [selectedEndDate, setSelectedEndDate] = useState("");
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -169,6 +166,9 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
+    const today = new Date().toISOString().split("T")[0];
+    setSelectedScanDate(today);
+    setSelectedEndDate(today);
     refreshAll();
     const interval = setInterval(() => {
       fetchStatus();

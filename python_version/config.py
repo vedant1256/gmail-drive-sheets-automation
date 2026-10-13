@@ -13,7 +13,9 @@ else:
     load_dotenv()
 
 # Master Excel File Path
-EXCEL_PATH = os.getenv("EXCEL_PATH", str(PROJECT_DIR / "Indian Embassies.xlsx"))
+excel_local = BASE_DIR / "Indian Embassies.xlsx"
+excel_parent = PROJECT_DIR / "Indian Embassies.xlsx"
+EXCEL_PATH = os.getenv("EXCEL_PATH", str(excel_local if excel_local.exists() else excel_parent))
 
 # Google Drive Destination Folder (Set in .env)
 DRIVE_FOLDER_ID = os.getenv("DRIVE_FOLDER_ID", "")

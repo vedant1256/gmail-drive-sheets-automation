@@ -15,6 +15,24 @@ class GoogleAuthManager:
     def __init__(self, credentials_path: str = CREDENTIALS_FILE, token_path: str = TOKEN_FILE):
         self.credentials_path = Path(credentials_path)
         self.token_path = Path(token_path)
+
+        # Restore secrets from environment variables in cloud environments (e.g. Render)
+        token_env = os.getenv("GOOGLE_TOKEN_JSON") or os.getenv("TOKEN_JSON_CONTENT")
+        if token_env and not self.token_path.exists():
+            try:
+                self.token_path.parent.mkdir(parents=True, exist_ok=True)
+                self.token_path.write_text(token_env.strip(), encoding="utf-8")
+            except Exception as e:
+                log_audit("AUTH_ENV_RESTORE_FAIL", level="WARNING", details=f"Failed to restore token from env: {e}")
+
+        creds_env = os.getenv("GOOGLE_CREDENTIALS_JSON") or os.getenv("CREDENTIALS_JSON_CONTENT")
+        if creds_env and not self.credentials_path.exists():
+            try:
+                self.credentials_path.parent.mkdir(parents=True, exist_ok=True)
+                self.credentials_path.write_text(creds_env.strip(), encoding="utf-8")
+            except Exception as e:
+                log_audit("AUTH_ENV_RESTORE_FAIL", level="WARNING", details=f"Failed to restore credentials from env: {e}")
+
         self._creds: Optional[Credentials] = None
         self._gmail_service: Optional[Resource] = None
         self._drive_service: Optional[Resource] = None
